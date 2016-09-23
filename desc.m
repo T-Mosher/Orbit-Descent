@@ -37,6 +37,7 @@ Ktd = 5;        % target vertical touchdown rate in m/s
 v_err_old = 0;    % initial value for velocity error
 Kp = 0.05;       % throttle proportional constant
 Kd = 0.3;       % throttle derivative constant
+%Kd = 0.0  % just testing
 Told = 0.1;       % initial throttle value - can't be zero
 T_FILTER = [.2 .2 .2 .2 .2]; % Coefficients for 5-unit low-pass filter
 Tvec = zeros(5,1);    % data vector for raw Throttle command filter
@@ -76,11 +77,11 @@ while (s(2) > 0)
   end
   
 % compute the target velocity for the descent profile
-if 0
+if 1
   % linear profile
   v_target = s(2) * Kap;
 end
-if 1
+if 0
   % parabolic profile
   v_target = 109 * sqrt(s(2)) * Kap;   % some sort of quadratic profile
 end
@@ -124,6 +125,14 @@ if 1
   end
   
   if 1
+    % enable AP below a fixed altitude
+    if s(2) > 3100
+      Kcorr = 0;   % make no correction
+    end
+  end
+      
+  
+  if 1
     % proportional throttle delta
     T = T + Kcorr;
     
@@ -131,6 +140,7 @@ if 1
     Tvec(2:5) = Tvec(1:4);    % rotate in the new sample
     Tvec(1) = T;
     T_cmd = T_FILTER * Tvec;
+    % I think this next line is incorrect...
     T = T_cmd;        % activates the filter
   end
   
